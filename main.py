@@ -1,7 +1,6 @@
+from io import open
 from tkinter import messagebox, filedialog as f, ttk
 import tkinter as tk
-
-
 
 class App(tk.Tk):
   
@@ -43,7 +42,6 @@ class App(tk.Tk):
         self.text.pack(fill="both",expand=1)
         self.text.config(border=0, padx=6, pady=5, font = ("Console",14))
 
-
    def newFile (self):
        
         self.title("New File - " + self.FileRoute + " - Notepad Compiler")
@@ -53,7 +51,19 @@ class App(tk.Tk):
 
         fileRoute = f.askopenfilename(initialdir = ".", filetypes = (("Archivos de Texto", "*.txt"),), title = "Open File")
 
-        self.title("Open File - " + fileRoute + " - Notepad Compiler")
+        if fileRoute != "":
+
+            file = open (fileRoute, "r")
+
+            content = file.read()
+
+            self.text.delete(1.0, "end")
+
+            self.text.insert("insert", content)
+
+            file.close()
+
+            self.title("Open File - " + fileRoute + " - Notepad Compiler")
 
    def saveFile (self):
        
