@@ -1,10 +1,11 @@
 from io import open
 from tkinter import messagebox, filedialog as f, ttk
 import tkinter as tk
+import re
 
 class App(tk.Tk):
   
-   def __init__(self):
+    def __init__(self):
 
         super().__init__()
 
@@ -12,10 +13,12 @@ class App(tk.Tk):
         self.geometry('600x600+200+10')
 
         self.FileRoute = "route"
+        self.fontSize = 12
 
         # File Menu
 
         menuBar = tk.Menu()
+
         fileMenu =tk.Menu(menuBar, tearoff = False)
 
         fileMenu.add_command(label = "New File", accelerator = "Ctrl+N", command = lambda: self.newFile())
@@ -30,30 +33,54 @@ class App(tk.Tk):
         formatMenu.add_command(label = "Cut", accelerator = "Ctrl+x", command = lambda: self.cut())
         formatMenu.add_command(label = "Copy", accelerator = "Ctrl+c", command = lambda: self.copy())
         formatMenu.add_command(label = "Paste", accelerator = "Ctrl+V", command = lambda: self.paste())
+        formatMenu.add_separator()
+        formatMenu.add_command(label = "Clear All", accelerator = "", command = lambda: self.clear())
         
-        menuBar.add_cascade(menu=fileMenu, label = "File")
-        menuBar.add_cascade(menu=formatMenu, label = "Format")
+        viewMenu = tk.Menu(menuBar, tearoff = False)
 
-        self.config(menu=menuBar)
+        viewMenu.add_command(label = "Zoom in", accelerator = "Ctrl +", command = lambda: self.zoomIn())
+        viewMenu.add_command(label = "Zoom Out", accelerator = "Ctrl -", command = lambda: self.zoomOut())
+
+        menuBar.add_cascade(menu = fileMenu, label = "File")
+        menuBar.add_cascade(menu = formatMenu, label = "Format")
+        menuBar.add_cascade(menu = viewMenu, label = "View")
+
+        self.bind("<Control-Key-plus>", lambda _: self.zoomIn())
+        self.bind("<Control-Key-minus>", lambda _: self.zoomOut())
+
+        self.config(menu = menuBar)
 
         # Text Box
 
-        self.text = tk.Text(self)
-        self.text.pack(fill="both",expand=1)
-        self.text.config(border=0, padx=6, pady=5, font = ("Console",14))
+        self.text = tk.Text(self,font= ('Arial', self.fontSize))
+        self.text.grid(column=0, row=0, sticky="nsew")
+        self.columnconfigure(0,weight=1)
+        self.rowconfigure(0,weight=1)
 
-   def newFile (self):
+        scrollbar = ttk.Scrollbar(self)
+        scrollbar.grid(column=1, row=0, sticky="nsew")
+    # Metodo para acomodar el nombre de la ruta a solo el nombre
+
+    def fileName (self, filename):
+       
+        finalName = re.search(r"(\w*)\.txt$",  filename).group()
+
+        return finalName
+
+    def newFile (self):
        
         self.title("New File - " + self.FileRoute + " - Notepad Compiler")
         self.text.delete(1.0, "end")
 
-   def openFile (self):
+    def openFile (self):
+        
+        self.fileRoute = f.askopenfilename(initialdir = ".", filetypes = (("Archivos de Texto", "*.txt"),), title = "Open File")
 
-        fileRoute = f.askopenfilename(initialdir = ".", filetypes = (("Archivos de Texto", "*.txt"),), title = "Open File")
+        if self.fileRoute != "":
 
-        if fileRoute != "":
+            finalName = self.fileName(self.fileRoute)
 
-            file = open (fileRoute, "r")
+            file = open (self.fileRoute, "r", encoding="utf-8")
 
             content = file.read()
 
@@ -63,32 +90,64 @@ class App(tk.Tk):
 
             file.close()
 
-            self.title("Open File - " + fileRoute + " - Notepad Compiler")
+            self.title(finalName + " - Notepad Compiler")
 
-   def saveFile (self):
+    def saveFile (self):
        
-       self.title( self.FileRoute + " - Notepad Compiler")
+        self.title( self.FileRoute + " - Notepad Compiler")
 
-   def saveAsFile (self):
+        value = self.text.get("1.0","end")
+
+        with open(self.fileRoute, "w",encoding="utf-8") as f:
+
+            f.write(value)
+
+            f.close()
+        
+        print(value)
+
+    def saveAsFile (self):
        
        self.title(self.FileRoute + " - Notepad Compiler")
 
-   def cut (self):
-       
-       print("cortado")
+    def cut (self):
+        
+        print("cortado")
 
-   def copy (self):
+    def copy (self):
 
-       print("Copiado")
+        print("Copiado")
 
-   def paste (self):
-       
-       print(self.route)
-       self.route = "MOOMO"
+    def clear(self):
+
+        self.text.delete(1.0, "end")
+
+    def paste (self):
+        
+        print(self.route)
+        self.route = "MOOMO"
+
+    def zoomIn (self):
+
+        self.fontSize += 4
+
+        self.text.config(font= ('Arial', self.fontSize))
+
+    def zoomOut(self):
+
+        self.fontSize -= 4
+
+        if self.fontSize < 8:
+            
+            self.fontSize = 8
+            messagebox.showinfo("Bitch", "bitch")
+        else:
+
+            self.text.config(font= ('Arial', self.fontSize))
 
    # Metodo para salir del Block de nota
 
-   def exit (self):
+    def exit (self):
       
       flag = messagebox.askokcancel(message = " Are you sure you want to exit?", title = "Notepad Compile")
 
@@ -100,3 +159,10 @@ if __name__ == "__main__":
   
   app = App()
   app.mainloop()
+
+  """
+path = "C:/Users/John/Documents/test.txt"
+print(path.split("/")[-1])
+
+
+  """
