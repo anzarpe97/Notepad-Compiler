@@ -2,6 +2,7 @@ from io import open
 from tkinter import messagebox, filedialog as f, ttk
 import tkinter as tk
 import re
+from os import system
 
 class App(tk.Tk):
   
@@ -11,9 +12,8 @@ class App(tk.Tk):
 
         self.title('Notepad Compiler')
         self.geometry('600x600+200+10')
-
-        self.FileRoute = "route"
         self.fontSize = 12
+        self.Route = ""
 
         # File Menu
 
@@ -30,8 +30,8 @@ class App(tk.Tk):
 
         formatMenu = tk.Menu(menuBar, tearoff = False)
 
-        formatMenu.add_command(label = "Cut", accelerator = "Ctrl+x", command = lambda: self.cut())
-        formatMenu.add_command(label = "Copy", accelerator = "Ctrl+c", command = lambda: self.copy())
+        formatMenu.add_command(label = "Cut", accelerator = "Ctrl+X", command = lambda: self.cut())
+        formatMenu.add_command(label = "Copy", accelerator = "Ctrl+C", command = lambda: self.copy())
         formatMenu.add_command(label = "Paste", accelerator = "Ctrl+V", command = lambda: self.paste())
         formatMenu.add_separator()
         formatMenu.add_command(label = "Clear All", accelerator = "", command = lambda: self.clear())
@@ -57,8 +57,11 @@ class App(tk.Tk):
         self.columnconfigure(0,weight=1)
         self.rowconfigure(0,weight=1)
 
-        scrollbar = ttk.Scrollbar(self)
+        scrollbar = ttk.Scrollbar(orient=tk.VERTICAL, command = self.text.yview)
         scrollbar.grid(column=1, row=0, sticky="nsew")
+
+        self.text.config(yscrollcommand=scrollbar.set)
+    
     # Metodo para acomodar el nombre de la ruta a solo el nombre
 
     def fileName (self, filename):
@@ -69,18 +72,18 @@ class App(tk.Tk):
 
     def newFile (self):
        
-        self.title("New File - " + self.FileRoute + " - Notepad Compiler")
+        self.title("New File - " + self.Route + " - Notepad Compiler")
         self.text.delete(1.0, "end")
 
     def openFile (self):
         
-        self.fileRoute = f.askopenfilename(initialdir = ".", filetypes = (("Archivos de Texto", "*.txt"),), title = "Open File")
+        self.Route = f.askopenfilename(initialdir = ".", filetypes = (("Archivos de Texto", "*.txt"),), title = "Open File")
 
-        if self.fileRoute != "":
+        if self.Route != "":
 
-            finalName = self.fileName(self.fileRoute)
+            finalName = self.fileName(self.Route)
 
-            file = open (self.fileRoute, "r", encoding="utf-8")
+            file = open (self.Route, "r", encoding="utf-8")
 
             content = file.read()
 
@@ -94,18 +97,37 @@ class App(tk.Tk):
 
     def saveFile (self):
        
-        self.title( self.FileRoute + " - Notepad Compiler")
+       if self.Route != "":
+            
+            self.title(self.Route + " - Notepad Compiler")
 
-        value = self.text.get("1.0","end")
+            value = self.text.get("1.0","end")
 
-        with open(self.fileRoute, "w",encoding="utf-8") as f:
+            with open(self.Route, "w",encoding="utf-8") as file:
 
-            f.write(value)
+                file.write(value)
 
-            f.close()
-        
-        print(value)
+                file.close()
+       else: 
+            
+            folderToSave = f.asksaveasfile(filetypes = (('Text Document', '*.txt'),), defaultextension = (('Text Document', '*.txt'),))
 
+            if folderToSave == "":
+
+                pass
+                
+            else:
+                 self.Route = folderToSave.name
+                 with open(folderToSave.name, "w") as file:
+
+                    value = self.text.get("1.0","end")
+                    
+                    file.write(value)
+                    
+                    file.close()
+
+                    self.title(folderToSave.name + " - Notepad Compiler")
+                
     def saveAsFile (self):
        
        self.title(self.FileRoute + " - Notepad Compiler")
@@ -140,7 +162,7 @@ class App(tk.Tk):
         if self.fontSize < 8:
             
             self.fontSize = 8
-            messagebox.showinfo("Bitch", "bitch")
+            messagebox.showinfo("Notepad Compiler", " ERROR")
         else:
 
             self.text.config(font= ('Arial', self.fontSize))
@@ -152,7 +174,7 @@ class App(tk.Tk):
       flag = messagebox.askokcancel(message = " Are you sure you want to exit?", title = "Notepad Compile")
 
       if flag == 1:
-         
+         system("cls")
          self.destroy()
 
 if __name__ == "__main__":
