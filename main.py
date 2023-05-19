@@ -1,23 +1,31 @@
+from compiler import Compiler
 from idlelib.percolator import Percolator
 import idlelib.colorizer as ic
 from io import open
 from tkinter import messagebox, filedialog as f, ttk
 import tkinter as tk
 import re
-from os import system
 
 class App(tk.Tk):
   
     def __init__(self):
 
         super().__init__()
+        
+        image_16 = tk.PhotoImage(file = "icons/pencil (1).png")
+        image_32 = tk.PhotoImage(file = "icons/pencil32.png")
 
+        self.iconphoto(False, image_32, image_16)
         self.title('Notepad Compiler')
-        self.geometry('600x600+200+10')
+        self.geometry('600x600')
         self.fontSize = 12
         self.Route = ""
+        self.starGUI()
+       
 
-        # File Menu
+    def starGUI(self):
+
+         # File Menu
 
         menuBar = tk.Menu()
 
@@ -32,23 +40,33 @@ class App(tk.Tk):
 
         formatMenu = tk.Menu(menuBar, tearoff = False)
 
-        formatMenu.add_command(label = "Cut", accelerator = "Ctrl+X", command = lambda: self.cut())
-        formatMenu.add_command(label = "Copy", accelerator = "Ctrl+C", command = lambda: self.copy())
-        formatMenu.add_command(label = "Paste", accelerator = "Ctrl+V", command = lambda: self.paste())
+        formatMenu.add_command(label="Cut", accelerator='Ctrl+X', command = lambda: self.focus_get().event_generate("<<Cut>>") )
+        formatMenu.add_command(label="Copy", accelerator='Ctrl+C', command = lambda: self.focus_get().event_generate("<<Copy>>"))
+        formatMenu.add_command(label="Paste", accelerator='Ctrl+V',  command = lambda: self.focus_get().event_generate("<<Paste>>"))
         formatMenu.add_separator()
         formatMenu.add_command(label = "Clear All", accelerator = "", command = lambda: self.clear())
-        
+
         viewMenu = tk.Menu(menuBar, tearoff = False)
 
         viewMenu.add_command(label = "Zoom in", accelerator = "Ctrl +", command = lambda: self.zoomIn())
         viewMenu.add_command(label = "Zoom Out", accelerator = "Ctrl -", command = lambda: self.zoomOut())
 
+        compilerMenu = tk.Menu(menuBar, tearoff = False)
+        compilerMenu.add_command(label = "Run", accelerator = "Ctrl + Q", command = lambda: self.startcompiler())
+
         menuBar.add_cascade(menu = fileMenu, label = "File")
         menuBar.add_cascade(menu = formatMenu, label = "Format")
         menuBar.add_cascade(menu = viewMenu, label = "View")
+        menuBar.add_cascade(menu = compilerMenu, label = "Compiler")
+        
+        # Comandos teclados
 
         self.bind("<Control-Key-plus>", lambda _: self.zoomIn())
         self.bind("<Control-Key-minus>", lambda _: self.zoomOut())
+        self.bind("<Control-Key-s>", lambda _: self.saveFile())
+        self.bind("<Control-Key-n>", lambda _: self.newFile())
+        self.bind("<Control-Key-o>", lambda _: self.openFile())
+        self.bind("<Control-Key-g>", lambda _: self.saveAsFile())
 
         self.config(menu = menuBar)
 
@@ -66,7 +84,7 @@ class App(tk.Tk):
         scrollbar.grid(column=1, row=0, sticky="nsew")
 
         self.text.config(yscrollcommand=scrollbar.set)
-    
+
     # Metodo para acomodar el nombre de la ruta a solo el nombre
 
     def fileName (self, filename):
@@ -164,25 +182,12 @@ class App(tk.Tk):
                     file.close()
 
                     name = self.fileName(self.Route)
-                    
+
                     self.title(name + " - Notepad Compiler")
-
-    def cut (self):
-        
-        print("cortado")
-
-    def copy (self):
-
-        print("Copiado")
 
     def clear(self):
 
         self.text.delete(1.0, "end")
-
-    def paste (self):
-        
-        print(self.route)
-        self.route = "MOOMO"
 
     def zoomIn (self):
 
@@ -202,6 +207,10 @@ class App(tk.Tk):
 
             self.text.config(font= ('Arial', self.fontSize))
 
+    def startcompiler(self):
+
+        self.compilerWindow = Compiler()
+
    # Metodo para salir del Block de nota
 
     def exit (self):
@@ -209,17 +218,27 @@ class App(tk.Tk):
       flag = messagebox.askokcancel(message = " Are you sure you want to exit?", title = "Notepad Compile")
 
       if flag == 1:
-         system("cls")
+
          self.destroy()
+
+class Compiler(tk.Toplevel):
+
+    def __init__(self):
+
+        super().__init__()
+
+        self.starCompiler()
+
+    def starCompiler(self):
+
+        self.config(width=300, height=200)
+        self.title("Compiler")
+        self.closewindow = ttk.Button(self, text="Close window", command=self.destroy).place(x=200,y=100)
+        self.focus()
+        self.grab_set()
+
 
 if __name__ == "__main__":
   
   app = App()
   app.mainloop()
-
-  """
-path = "C:/Users/John/Documents/test.txt"
-print(path.split("/")[-1])
-
-
-  """
