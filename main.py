@@ -1,3 +1,5 @@
+from idlelib.percolator import Percolator
+import idlelib.colorizer as ic
 from io import open
 from tkinter import messagebox, filedialog as f, ttk
 import tkinter as tk
@@ -54,6 +56,9 @@ class App(tk.Tk):
 
         self.text = tk.Text(self,font= ('Arial', self.fontSize))
         self.text.grid(column=0, row=0, sticky="nsew")
+
+        Percolator(self.text).insertfilter(ic.ColorDelegator())
+
         self.columnconfigure(0,weight=1)
         self.rowconfigure(0,weight=1)
 
@@ -70,10 +75,14 @@ class App(tk.Tk):
 
         return finalName
 
+    # Metodo para crear un nuevo archivo
+
     def newFile (self):
        
-        self.title("New File - " + self.Route + " - Notepad Compiler")
+        self.title("New File - Notepad Compiler")
         self.text.delete(1.0, "end")
+
+    # Metodo para abrir un archivo
 
     def openFile (self):
         
@@ -95,11 +104,15 @@ class App(tk.Tk):
 
             self.title(finalName + " - Notepad Compiler")
 
+    # Metodo para guardar un archivo
+
     def saveFile (self):
        
        if self.Route != "":
             
-            self.title(self.Route + " - Notepad Compiler")
+            name = self.fileName(self.Route)
+
+            self.title(name + " - Notepad Compiler")
 
             value = self.text.get("1.0","end")
 
@@ -117,7 +130,31 @@ class App(tk.Tk):
                 pass
                 
             else:
+                 
                  self.Route = folderToSave.name
+
+                 with open(folderToSave.name, "w") as file:
+
+                    value = self.text.get("1.0","end")
+                    
+                    file.write(value)
+                    
+                    file.close()
+                    name = self.fileName(self.Route)
+                    self.title(name + " - Notepad Compiler")
+                
+    def saveAsFile (self):
+       
+        folderToSave = f.asksaveasfile(filetypes = (('Text Document', '*.txt'),), defaultextension = (('Text Document', '*.txt'),))
+
+        if folderToSave == "":
+
+                pass
+                
+        else:
+                 
+                 self.Route = folderToSave.name
+
                  with open(folderToSave.name, "w") as file:
 
                     value = self.text.get("1.0","end")
@@ -126,11 +163,9 @@ class App(tk.Tk):
                     
                     file.close()
 
-                    self.title(folderToSave.name + " - Notepad Compiler")
-                
-    def saveAsFile (self):
-       
-       self.title(self.FileRoute + " - Notepad Compiler")
+                    name = self.fileName(self.Route)
+                    
+                    self.title(name + " - Notepad Compiler")
 
     def cut (self):
         
