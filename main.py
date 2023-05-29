@@ -30,7 +30,7 @@ class App(tk.Tk):
 
         fileMenu =tk.Menu(menuBar, tearoff = False)
 
-        fileMenu.add_command(label = "Archivo Nuevo", accelerator = "Ctrl+N", command = lambda: self.newFile())
+        fileMenu.add_command(label = "Archivos Nuevo", accelerator = "Ctrl+N", command = lambda: self.newFile())
         fileMenu.add_command(label = "Abrir Archivo", accelerator = "Ctrl+O", command = lambda: self.openFile())
         fileMenu.add_command(label = "Guardar", accelerator = "Ctrl+S", command = lambda: self.saveFile())
         fileMenu.add_command(label = "Guardar Como", accelerator = "Ctrl+G", command = lambda: self.saveAsFile())
