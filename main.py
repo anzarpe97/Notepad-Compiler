@@ -17,11 +17,10 @@ class App(tk.Tk):
 
         self.iconphoto(False, image_32, image_16)
         self.title('Notepad Compiler')
-        self.geometry('600x600')
+        self.geometry("800x600+10+10")
         self.fontSize = 12
         self.Route = ""
         self.starGUI()
-       
 
     def starGUI(self):
 
@@ -31,33 +30,34 @@ class App(tk.Tk):
 
         fileMenu =tk.Menu(menuBar, tearoff = False)
 
-        fileMenu.add_command(label = "New File", accelerator = "Ctrl+N", command = lambda: self.newFile())
-        fileMenu.add_command(label = "Open File", accelerator = "Ctrl+O", command = lambda: self.openFile())
-        fileMenu.add_command(label = "Save File", accelerator = "Ctrl+S", command = lambda: self.saveFile())
-        fileMenu.add_command(label = "Save As", accelerator = "Ctrl+G", command = lambda: self.saveAsFile())
+        fileMenu.add_command(label = "Archivo Nuevo", accelerator = "Ctrl+N", command = lambda: self.newFile())
+        fileMenu.add_command(label = "Abrir Archivo", accelerator = "Ctrl+O", command = lambda: self.openFile())
+        fileMenu.add_command(label = "Guardar", accelerator = "Ctrl+S", command = lambda: self.saveFile())
+        fileMenu.add_command(label = "Guardar Como", accelerator = "Ctrl+G", command = lambda: self.saveAsFile())
         fileMenu.add_separator()
-        fileMenu.add_command(label = "Exit", accelerator = "", command = lambda: self.exit())
+        fileMenu.add_command(label = "Salir", accelerator = "", command = lambda: self.exit())
+        
 
         formatMenu = tk.Menu(menuBar, tearoff = False)
 
-        formatMenu.add_command(label="Cut", accelerator='Ctrl+X', command = lambda: self.focus_get().event_generate("<<Cut>>") )
-        formatMenu.add_command(label="Copy", accelerator='Ctrl+C', command = lambda: self.focus_get().event_generate("<<Copy>>"))
-        formatMenu.add_command(label="Paste", accelerator='Ctrl+V',  command = lambda: self.focus_get().event_generate("<<Paste>>"))
+        formatMenu.add_command(label="Cortar", accelerator='Ctrl+X', command = lambda: self.focus_get().event_generate("<<Cut>>") )
+        formatMenu.add_command(label="Copiar", accelerator='Ctrl+C', command = lambda: self.focus_get().event_generate("<<Copy>>"))
+        formatMenu.add_command(label="Pegar", accelerator='Ctrl+V',  command = lambda: self.focus_get().event_generate("<<Paste>>"))
         formatMenu.add_separator()
-        formatMenu.add_command(label = "Clear All", accelerator = "", command = lambda: self.clear())
+        formatMenu.add_command(label = "Limpiar", accelerator = "", command = lambda: self.clear())
 
         viewMenu = tk.Menu(menuBar, tearoff = False)
 
-        viewMenu.add_command(label = "Zoom in", accelerator = "Ctrl +", command = lambda: self.zoomIn())
-        viewMenu.add_command(label = "Zoom Out", accelerator = "Ctrl -", command = lambda: self.zoomOut())
+        viewMenu.add_command(label = "Acercar", accelerator = "Ctrl +", command = lambda: self.zoomIn())
+        viewMenu.add_command(label = "Alejar", accelerator = "Ctrl -", command = lambda: self.zoomOut())
 
         compilerMenu = tk.Menu(menuBar, tearoff = False)
         compilerMenu.add_command(label = "Run", accelerator = "Ctrl + Q", command = lambda: self.startcompiler())
 
-        menuBar.add_cascade(menu = fileMenu, label = "File")
-        menuBar.add_cascade(menu = formatMenu, label = "Format")
-        menuBar.add_cascade(menu = viewMenu, label = "View")
-        menuBar.add_cascade(menu = compilerMenu, label = "Compiler")
+        menuBar.add_cascade(menu = fileMenu, label = "Archivo")
+        menuBar.add_cascade(menu = formatMenu, label = "Formato")
+        menuBar.add_cascade(menu = viewMenu, label = "Ver")
+        menuBar.add_cascade(menu = compilerMenu, label = "Compilador")
         
         # Comandos teclados
 
@@ -99,12 +99,13 @@ class App(tk.Tk):
        
         self.title("New File - Notepad Compiler")
         self.text.delete(1.0, "end")
+        self.Route = ""
 
     # Metodo para abrir un archivo
 
     def openFile (self):
         
-        self.Route = f.askopenfilename(initialdir = ".", filetypes = (("Archivos de Texto", "*.txt"),), title = "Open File")
+        self.Route = f.askopenfilename(initialdir = ".", filetypes = (("Archivos de Texto", "*.txt"),), title = "Abrir Archivo")
 
         if self.Route != "":
 
@@ -141,26 +142,8 @@ class App(tk.Tk):
                 file.close()
        else: 
             
-            folderToSave = f.asksaveasfile(filetypes = (('Text Document', '*.txt'),), defaultextension = (('Text Document', '*.txt'),))
-
-            if folderToSave == "":
-
-                pass
-                
-            else:
-                 
-                 self.Route = folderToSave.name
-
-                 with open(folderToSave.name, "w") as file:
-
-                    value = self.text.get("1.0","end")
-                    
-                    file.write(value)
-                    
-                    file.close()
-                    name = self.fileName(self.Route)
-                    self.title(name + " - Notepad Compiler")
-                
+            self.saveAsFile()
+             
     def saveAsFile (self):
        
         folderToSave = f.asksaveasfile(filetypes = (('Text Document', '*.txt'),), defaultextension = (('Text Document', '*.txt'),))
@@ -170,7 +153,8 @@ class App(tk.Tk):
                 pass
                 
         else:
-                 
+                try:
+                     
                  self.Route = folderToSave.name
 
                  with open(folderToSave.name, "w") as file:
@@ -184,6 +168,10 @@ class App(tk.Tk):
                     name = self.fileName(self.Route)
 
                     self.title(name + " - Notepad Compiler")
+
+                except AttributeError:
+
+                    pass
 
     def clear(self):
 
@@ -202,10 +190,10 @@ class App(tk.Tk):
         if self.fontSize < 8:
             
             self.fontSize = 8
-            messagebox.showinfo("Notepad Compiler", " ERROR")
+            
         else:
 
-            self.text.config(font= ('Arial', self.fontSize))
+            self.text.config(font= ('Arial', self.fontSize))       
 
     def startcompiler(self):
 
@@ -231,12 +219,13 @@ class Compiler(tk.Toplevel):
 
     def starCompiler(self):
 
-        self.config(width=300, height=200)
+        self.iconbitmap("icons/settings.ico")   
+        self.geometry("300x400+500+50")
         self.title("Compiler")
-        self.closewindow = ttk.Button(self, text="Close window", command=self.destroy).place(x=200,y=100)
+        self.closewindow = tk.Button(self, text="Cerrar Ventana",relief="flat",command=self.destroy,background="#e00000", foreground="White")
+        self.closewindow.place(x=200,y=100)
         self.focus()
         self.grab_set()
-
 
 if __name__ == "__main__":
   
