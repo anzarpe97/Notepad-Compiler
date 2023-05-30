@@ -30,14 +30,13 @@ class App(tk.Tk):
 
         fileMenu =tk.Menu(menuBar, tearoff = False)
 
-        fileMenu.add_command(label = "Archivos Nuevo", accelerator = "Ctrl+N", command = lambda: self.newFile())
-        fileMenu.add_command(label = "Abrir Archivo", accelerator = "Ctrl+O", command = lambda: self.openFile())
+        fileMenu.add_command(label = "Nuevo", accelerator = "Ctrl+N", command = lambda: self.newFile())
+        fileMenu.add_command(label = "Abrir", accelerator = "Ctrl+O", command = lambda: self.openFile())
         fileMenu.add_command(label = "Guardar", accelerator = "Ctrl+S", command = lambda: self.saveFile())
         fileMenu.add_command(label = "Guardar Como", accelerator = "Ctrl+G", command = lambda: self.saveAsFile())
         fileMenu.add_separator()
         fileMenu.add_command(label = "Salir", accelerator = "", command = lambda: self.exit())
         
-
         formatMenu = tk.Menu(menuBar, tearoff = False)
 
         formatMenu.add_command(label="Cortar", accelerator='Ctrl+X', command = lambda: self.focus_get().event_generate("<<Cut>>") )
@@ -67,21 +66,22 @@ class App(tk.Tk):
         self.bind("<Control-Key-n>", lambda _: self.newFile())
         self.bind("<Control-Key-o>", lambda _: self.openFile())
         self.bind("<Control-Key-g>", lambda _: self.saveAsFile())
+        self.bind("<Control-Key-q>", lambda _: self.startcompiler())
 
         self.config(menu = menuBar)
 
         # Text Box
 
-        self.text = tk.Text(self,font= ('Arial', self.fontSize))
-        self.text.grid(column=0, row=0, sticky="nsew")
+        self.text = tk.Text(self, font = ('Arial', self.fontSize))
+        self.text.grid(column = 0, row = 0, sticky = "nsew")
 
         Percolator(self.text).insertfilter(ic.ColorDelegator())
 
-        self.columnconfigure(0,weight=1)
-        self.rowconfigure(0,weight=1)
+        self.columnconfigure(0, weight = 1)
+        self.rowconfigure(0, weight = 1)
 
-        scrollbar = ttk.Scrollbar(orient=tk.VERTICAL, command = self.text.yview)
-        scrollbar.grid(column=1, row=0, sticky="nsew")
+        scrollbar = ttk.Scrollbar(orient = tk.VERTICAL, command = self.text.yview)
+        scrollbar.grid(column = 1, row = 0, sticky = "nsew")
 
         self.text.config(yscrollcommand=scrollbar.set)
 
@@ -110,15 +110,10 @@ class App(tk.Tk):
         if self.Route != "":
 
             finalName = self.fileName(self.Route)
-
             file = open (self.Route, "r", encoding="utf-8")
-
             content = file.read()
-
             self.text.delete(1.0, "end")
-
             self.text.insert("insert", content)
-
             file.close()
 
             self.title(finalName + " - Notepad Compiler")
@@ -130,16 +125,14 @@ class App(tk.Tk):
        if self.Route != "":
             
             name = self.fileName(self.Route)
-
             self.title(name + " - Notepad Compiler")
-
             value = self.text.get("1.0","end")
 
-            with open(self.Route, "w",encoding="utf-8") as file:
+            with open(self.Route, "w", encoding = "utf-8") as file:
 
                 file.write(value)
-
                 file.close()
+
        else: 
             
             self.saveAsFile()
@@ -197,7 +190,7 @@ class App(tk.Tk):
 
     def startcompiler(self):
 
-        self.compilerWindow = Compiler()
+        self.compilerWindow = Compiler(self.text.get("1.0",tk.END))
 
    # Metodo para salir del Block de nota
 
@@ -211,19 +204,25 @@ class App(tk.Tk):
 
 class Compiler(tk.Toplevel):
 
-    def __init__(self):
+    def __init__(self, texto):
 
         super().__init__()
 
+        self.textW = texto
         self.starCompiler()
 
     def starCompiler(self):
 
-        self.iconbitmap("icons/settings.ico")   
-        self.geometry("300x400+500+50")
+        self.iconbitmap("icons/settings.ico")  
+        self.resizable(0,0) 
+        self.geometry("600x400+500+50")
         self.title("Compiler")
-        self.closewindow = tk.Button(self, text="Cerrar Ventana",relief="flat",command=self.destroy,background="#e00000", foreground="White")
-        self.closewindow.place(x=200,y=100)
+
+        texto = tk.Label(self, text = self.textW)
+        texto.place(x = 20, y = 10)
+
+        self.closewindow = tk.Button(self, text = "Cerrar Ventana", relief = "flat", command = self.destroy, background = "#e00000", foreground = "White")
+        self.closewindow.place(x = 480, y = 350)
         self.focus()
         self.grab_set()
 
